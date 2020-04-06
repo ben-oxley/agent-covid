@@ -1,11 +1,14 @@
 ﻿using CsvHelper;
 using NPOI.SS.UserModel;
+using NPOI.Util;
 using NPOI.XSSF.UserModel;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Net;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace COVID
 {
@@ -30,20 +33,18 @@ namespace COVID
             return null;
         }
 
-        private static void GetNumCases()
+        public static async Task GetNumCases()
         {
-            //https://fingertips.phe.org.uk/documents/Historic%20COVID-19%20Dashboard%20Data.xlsx
-            //https://fingertips.phe.org.uk/documents/Historic%20COVID-19%20Dashboard%20Data.xlsx
-            var newFile = @"newbook.core.xlsx";
+            WebClient webClient = new WebClient();
+            Uri uri = new Uri("https://fingertips.phe.org.uk/documents/Historic%20COVID-19%20Dashboard%20Data.xlsx");
+            byte[] v = await webClient.DownloadDataTaskAsync(uri);
+            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(v);
+            IWorkbook workbook = new XSSFWorkbook(byteArrayInputStream);
 
-            using (var fs = new FileStream(newFile, FileMode.Open, FileAccess.Read))
-            {
-
-                IWorkbook workbook = new XSSFWorkbook();
-
-                ISheet sheet1 = workbook.CreateSheet("UTLAs");
-                sheet1.GetRow()
-            }
+            ISheet sheet1 = workbook.GetSheet("UTLAs");
+            IRow headerRow = sheet1.GetRow(7);
+            if (headerRow.GetCell(0).StringCellValue != "Area Code") throw new FormatException("Table not in the expected format");
+            
         }
     }
 }

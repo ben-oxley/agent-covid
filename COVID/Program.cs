@@ -9,6 +9,7 @@ namespace COVID
         {
             //PersonGenerator.Generate();
             ModelContext.loadData(new ModelContext());  
+
         }
     }
 }
